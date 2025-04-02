@@ -1,0 +1,12 @@
+Anotações:
+
+rodar aplicação "ngrok.exe" e inserir comando "ngrok http 5000"
+
+
+Console twilio:
+https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn?frameUrl=%2Fconsole%2Fsms%2Fwhatsapp%2Flearn%3Fx-target-region%3Dus1
+
+
+No Twilio, inserir o link que for gerado pelo 
+Em "WHEN A MESSAGE COMES IN" inserir https://4e3a-191-13-13-39.ngrok-free.app/webhook
+
