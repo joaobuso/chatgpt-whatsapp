@@ -65,5 +65,5 @@ Fale de forma clara, profissional e acolhedora. Ajude o usuário a entender os s
     twilio_resp.message(reply)
     return str(twilio_resp)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
