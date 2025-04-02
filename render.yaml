@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: chatgpt-whatsapp
+    env: python
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: OPENAI_API_KEY
+        value: your-openai-key
+      - key: TWILIO_ACCOUNT_SID
+        value: your-twilio-sid
+      - key: TWILIO_AUTH_TOKEN
+        value: your-twilio-token
