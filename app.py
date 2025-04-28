@@ -25,7 +25,7 @@ def whatsapp_webhook():
 
     # Saudação personalizada
     if user_msg.lower() in ["oi", "olá", "bom dia", "boa tarde", "boa noite"]:
-        saudacao = "Olá! 👋 Eu sou o corretor virtual da Equinos Seguros.\nEstou aqui para facilitar sua cotação de seguro!"
+        saudacao = "Olá! 👋 Eu sou o corretor virtual da Equinos Seguros.\nEstou aqui para facilitar sua cotação de seguro!\nEm que posso te ajudar ?"
         twilio_resp.message(saudacao)
         return str(twilio_resp)
 
@@ -37,7 +37,7 @@ def whatsapp_webhook():
                 {
                     "role": "system",
                     "content": """
-    Você é o corretor virtual da empresa **Equinos Seguros**, especializado em cotação de seguros para cavalos e animais de competição.
+    Você é o corretor virtual da empresa **Equinos Seguros**, especializado em cotação de seguros Pecuário Individual, Rebanhos ou animais de de Competição e Exposição.
 
     Sua função é orientar o cliente a fornecer todas as informações obrigatórias para realizar a cotação.
 
