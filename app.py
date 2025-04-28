@@ -6,8 +6,30 @@ import uuid
 import hashlib
 import glob
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
+
+def converter_audio_para_texto(media_url):
+    try:
+        # Baixar o arquivo de áudio
+        response = requests.get(media_url)
+        with open("temp_audio.ogg", "wb") as f:
+            f.write(response.content)
+
+        # Chamar OpenAI Whisper
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        with open("temp_audio.ogg", "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                response_format="text"
+            )
+
+        return transcription
+    except Exception as e:
+        print(f"Erro na transcrição: {str(e)}")
+        return "Desculpe, não consegui interpretar seu áudio."
 
 app = Flask(__name__, static_folder="static")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -18,10 +40,24 @@ if not os.path.exists("static"):
 
 @app.route("/webhook", methods=["POST"])
 def whatsapp_webhook():
-    user_msg = request.values.get('Body', '').strip()
-    print(f"Recebido: {user_msg}")
-
     twilio_resp = MessagingResponse()
+
+    num_media = int(request.values.get('NumMedia', 0))
+
+    if num_media > 0:
+        # Recebe áudio enviado
+        media_url = request.values.get('MediaUrl0')
+        content_type = request.values.get('MediaContentType0')
+
+        if "audio" in content_type:
+            print(f"Áudio recebido: {media_url}")
+            # Agora transcreve o áudio
+            user_msg = converter_audio_para_texto(media_url)
+        else:
+            user_msg = "Desculpe, só consigo interpretar áudios de voz."
+    else:
+        # Se não é áudio, pega o texto normal
+        user_msg = request.values.get('Body', '').strip()
     
     # Saudação personalizada
     if user_msg.lower() in ["oi", "olá", "bom dia", "boa tarde", "boa noite"]:
