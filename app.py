@@ -96,12 +96,21 @@ def whatsapp_webhook():
     Caso falte alguma informação, informe gentilmente ao usuário **quais campos estão faltando** e solicite o preenchimento.
 
     Quando todas as informações forem enviadas, avise ao usuário que os resultados serão entregues em dois documentos:
-    - Cotação Seguradora SwissRe: https://drive.google.com/file/d/1duauc3jLLkpi-7eTN3TJLi2RypTA4_Qk/view?usp=sharing
-    - Cotação Seguradora Fairfax: https://drive.google.com/file/d/1duauc3jLLkpi-7eTN3TJLi2RypTA4_Qk/view?usp=sharing
+    link_swissre = https://drive.google.com/file/d/1duauc3jLLkpi-7eTN3TJLi2RypTA4_Qk/view?usp=sharing
+    link_fairfax = https://drive.google.com/file/d/1duauc3jLLkpi-7eTN3TJLi2RypTA4_Qk/view?usp=sharing
 
     Comunique-se de forma clara, acolhedora e profissional.
-
     Responda de maneira educada, perguntando dados adicionais sempre que necessário.
+
+    
+    Resposta final = 'Obrigado por fornecer todas as informações necessárias para a cotação do seguro do animal Mancha.
+
+                    Os resultados da cotação serão entregues em dois documentos, disponíveis nos links abaixo:
+
+                    - Cotação Seguradora SwissRe: {link_swissre}
+                    - Cotação Seguradora Fairfax: {link_fairfax}
+
+                    Se precisar de mais alguma assistência ou informações, estou à disposição.
     """
                 },
                 {"role": "user", "content": user_msg}
