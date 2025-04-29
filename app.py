@@ -64,13 +64,26 @@ def whatsapp_webhook():
     else:
         user_msg = request.values.get('Body', '').strip()
 
-    # Atualiza a memória com os dados que o usuário enviou
+    twilio_resp = MessagingResponse()
+
+    # ⚡ Se o usuário ainda não começou a mandar informações
+    if user_number not in memoria_usuarios or not memoria_usuarios[user_number]:
+        # Primeira interação ou sem dados capturados ainda
+        iniciar_cotacao = ["quero fazer seguro", "gostaria de fazer um seguro", "quero cotar", "quero uma cotação"]
+
+        if any(palavra in user_msg.lower() for palavra in iniciar_cotacao):
+            resposta = "Ótimo! Vamos iniciar sua cotação. Me informe o Nome do Animal, por favor. 🐎"
+        else:
+            resposta = "Olá! 👋 Estou aqui para ajudar na cotação de seguro para seu animal. Diga 'quero fazer seguro' para começarmos."
+
+        twilio_resp.message(resposta)
+        return str(twilio_resp)
+
+    # Se já começou a cotação, atualiza a memória
     atualizar_memoria(user_number, user_msg)
 
-    # Verifica se já temos todos os campos preenchidos
+    # Verifica campos faltantes
     falta = checar_campos_faltando(user_number)
-
-    twilio_resp = MessagingResponse()
 
     if falta:
         resposta = f"Faltam as seguintes informações para continuar a cotação: {', '.join(falta)}"
