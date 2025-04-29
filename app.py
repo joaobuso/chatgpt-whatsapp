@@ -10,6 +10,11 @@ import requests
 from collections import defaultdict
 
 memoria_usuarios = defaultdict(dict)
+app = Flask(__name__, static_folder="static")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Garante que a pasta static/ existe
+if not os.path.exists("static"):
+    os.makedirs("static")
 
 load_dotenv()
 def atualizar_memoria(user_number, mensagem):
@@ -47,12 +52,6 @@ def converter_audio_para_texto(media_url):
         print(f"Erro na transcrição: {str(e)}")
         return "Desculpe, não consegui interpretar seu áudio."
 
-app = Flask(__name__, static_folder="static")
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# Garante que a pasta static/ existe
-if not os.path.exists("static"):
-    os.makedirs("static")
 
 @app.route("/webhook", methods=["POST"])
 def whatsapp_webhook():
@@ -79,7 +78,7 @@ def whatsapp_webhook():
         resposta = "Perfeito! Todas as informações foram preenchidas. Vamos prosseguir com a cotação."
 
     twilio_resp.message(resposta)
-    return str(twilio_resp)
+    #return str(twilio_resp)
 
     # Resposta com IA
     try:
