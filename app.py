@@ -7,29 +7,8 @@ import hashlib
 import glob
 from dotenv import load_dotenv
 import requests
-from collections import defaultdict
-
-memoria_usuarios = defaultdict(dict)
-app = Flask(__name__, static_folder="static")
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-# Garante que a pasta static/ existe
-if not os.path.exists("static"):
-    os.makedirs("static")
 
 load_dotenv()
-def atualizar_memoria(user_number, mensagem):
-    # Aqui você analisa o texto e extrai Nome, Valor, Raça, etc.
-    # Exemplo ultra simples (para demonstrar):
-    if "manga larga" in mensagem.lower():
-        memoria_usuarios[user_number]['Raça'] = "Manga Larga"
-    if "endereço" in mensagem.lower():
-        memoria_usuarios[user_number]['Endereço'] = mensagem
-    # (ideal usar regex ou IA para extrair melhor)
-
-def checar_campos_faltando(user_number):
-    campos_obrigatorios = ['Nome', 'Valor', 'Raça', 'Nascimento', 'Sexo', 'Utilização', 'Endereço']
-    preenchidos = memoria_usuarios[user_number].keys()
-    return [campo for campo in campos_obrigatorios if campo not in preenchidos]
 
 def converter_audio_para_texto(media_url):
     try:
@@ -52,46 +31,44 @@ def converter_audio_para_texto(media_url):
         print(f"Erro na transcrição: {str(e)}")
         return "Desculpe, não consegui interpretar seu áudio."
 
+app = Flask(__name__, static_folder="static")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Garante que a pasta static/ existe
+if not os.path.exists("static"):
+    os.makedirs("static")
 
 @app.route("/webhook", methods=["POST"])
 def whatsapp_webhook():
-    user_number = request.values.get('From', '')  # Ex: 'whatsapp:+5511999999999'
-    num_media = int(request.values.get('NumMedia', 0))
-    
-    if num_media > 0:
-        media_url = request.values.get('MediaUrl0')
-        user_msg = converter_audio_para_texto(media_url)
-    else:
-        user_msg = request.values.get('Body', '').strip()
-
     twilio_resp = MessagingResponse()
 
-    # ⚡ Se o usuário ainda não começou a mandar informações
-    if user_number not in memoria_usuarios or not memoria_usuarios[user_number]:
-        # Primeira interação ou sem dados capturados ainda
-        iniciar_cotacao = ["quero fazer seguro", "gostaria de fazer um seguro", "quero cotar", "quero uma cotação"]
+    num_media = int(request.values.get('NumMedia', 0))
 
-        if any(palavra in user_msg.lower() for palavra in iniciar_cotacao):
-            resposta = "Ótimo! Vamos iniciar sua cotação. Me informe o Nome do Animal, por favor. 🐎"
+    if num_media > 0:
+        # Recebe áudio enviado
+        media_url = request.values.get('MediaUrl0')
+        content_type = request.values.get('MediaContentType0')
+
+        if "audio" in content_type:
+            print(f"Áudio recebido: {media_url}")
+            # Agora transcreve o áudio
+            user_msg = converter_audio_para_texto(media_url)
         else:
-            resposta = "Olá! 👋 Estou aqui para ajudar na cotação de seguro para seu animal. Diga 'quero fazer seguro' para começarmos."
-
-        twilio_resp.message(resposta)
-        return str(twilio_resp)
-
-    # Se já começou a cotação, atualiza a memória
-    atualizar_memoria(user_number, user_msg)
-
-    # Verifica campos faltantes
-    falta = checar_campos_faltando(user_number)
-
-    if falta:
-        resposta = f"Faltam as seguintes informações para continuar a cotação: {', '.join(falta)}"
+            user_msg = "Desculpe, só consigo interpretar áudios de voz."
     else:
-        resposta = "Perfeito! Todas as informações foram preenchidas. Vamos prosseguir com a cotação."
+        # Se não é áudio, pega o texto normal
+        user_msg = request.values.get('Body', '').strip()
+    
+    # Saudação personalizada
+    if user_msg.lower() in ["oi", "olá", "bom dia", "boa tarde", "boa noite"]:
+        saudacao = "Olá! 👋 Eu sou o corretor virtual da Equinos Seguros.\nEstou aqui para facilitar sua cotação de seguro!\nEm que posso te ajudar ?"
+        msg_text = twilio_resp.message(saudacao)
 
-    twilio_resp.message(resposta)
-    #return str(twilio_resp)
+        audio_filename = gerar_ou_buscar_audio(saudacao)
+        if audio_filename:
+            msg_audio = twilio_resp.message()
+            msg_audio.media(f"https://chatgpt-whatsapp-sc0w.onrender.com/static/{audio_filename}")
+
 
     # Resposta com IA
     try:
