@@ -82,7 +82,7 @@ def whatsapp_webhook():
 
     Sua função é orientar o cliente a fornecer todas as informações obrigatórias para realizar a cotação.
 
-    As informações obrigatórias são:
+    As informações obrigatórias são (deverão ser apresentadas para o usuário conforme lista abaixo sendo um item em cada linha):
     - Nome do Animal
     - Valor do Animal
     - Número de Registro ou Passaporte (se tiver)
